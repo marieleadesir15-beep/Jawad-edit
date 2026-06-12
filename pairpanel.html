@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Connexion — Mr Christ X-MD</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <h1>Connexion — Mr Christ X-MD</h1>
+    <p>Entrez votre numéro (code pays + numéro, sans le signe +). Exemple : 50937081286</p>
+    <form id="pairForm">
+      <input id="number" name="number" placeholder="Code pays + numéro (sans +)" required />
+      <button type="submit">Générer le code</button>
+    </form>
+    <div id="result" class="hidden"></div>
+    <h3>Instructions :</h3>
+    <ol>
+      <li>Entrez votre numéro et cliquez « Générer le code ».</li>
+      <li>Copiez le code affiché.</li>
+      <li>Ouvrez WhatsApp → Paramètres → Appareils liés → « Link a device ». Collez le code pour connecter.</li>
+    </ol>
+    <p style="font-size:12px;color:#aaa">Le code expire après 5 minutes.</p>
+  </main>
+  <script>
+    const form=document.getElementById('pairForm');
+    const result=document.getElementById('result');
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      result.classList.remove('hidden');
+      result.textContent='Génération en cours...';
+      const number=document.getElementById('number').value.trim();
+      try{
+        const res=await fetch('/pair',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number})});
+        const j=await res.json();
+        if(j.ok){ result.innerHTML=`<strong>Code :</strong> <code>${j.code}</code><br/>Expire dans ${j.expiresIn} secondes.`; }
+        else result.textContent=j.error||JSON.stringify(j);
+      }catch(err){ result.textContent='Erreur réseau'; }
+    });
+  </script>
+</body>
+</html>
